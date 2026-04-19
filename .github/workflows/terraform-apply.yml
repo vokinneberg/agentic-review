@@ -79,7 +79,8 @@ jobs:
         run: |
           echo "Waiting for clusterlint to complete..."
           for i in $(seq 1 12); do
-            RESULT=$(doctl kubernetes cluster lint ${{ needs.apply.outputs.cluster_id }} --output json 2>/dev/null || echo '[]')
+            RAW=$(doctl kubernetes cluster lint ${{ needs.apply.outputs.cluster_id }} --output json 2>/dev/null || true)
+            RESULT=$(echo "$RAW" | jq '.' 2>/dev/null || echo '[]')
             STATUS=$(echo "$RESULT" | jq -r '.[0].run_status // "not_started"')
             if [ "$STATUS" = "completed" ]; then
               echo "Clusterlint completed."

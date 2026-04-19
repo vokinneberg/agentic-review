@@ -2,11 +2,11 @@ name: Build & Push Tool Images
 
 on:
   push:
-    branches: [main]
+    branches: [ master ]
     paths:
       - "tools/**"
   pull_request:
-    branches: [main]
+    branches: [ master ]
     paths:
       - "tools/**"
 

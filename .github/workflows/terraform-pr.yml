@@ -61,6 +61,8 @@ jobs:
         env:
           TF_VAR_do_token: ${{ secrets.DIGITALOCEAN_TOKEN }}
           TF_VAR_kagent_anthropic_api_key: ${{ secrets.KAGENT_ANTHROPIC_API_KEY }}
+          TF_VAR_ghcr_token: ${{ secrets.GHCR_TOKEN }}
+          TF_VAR_github_token: ${{ secrets.GITHUB_MCP_TOKEN }}
 
       - name: Comment Plan on PR
         uses: actions/github-script@v7

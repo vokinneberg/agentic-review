@@ -76,7 +76,9 @@ jobs:
         run: doctl kubernetes cluster kubeconfig save ${{ needs.apply.outputs.cluster_id }}
 
       - name: Install clusterlint
-        run: go install github.com/digitalocean/clusterlint/cmd/clusterlint@latest
+        run: |
+          git clone --depth=1 https://github.com/digitalocean/clusterlint /tmp/clusterlint
+          cd /tmp/clusterlint && go build -o /usr/local/bin/clusterlint ./cmd/clusterlint
 
       - name: Run clusterlint
         run: clusterlint run

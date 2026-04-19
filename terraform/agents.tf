@@ -22,6 +22,22 @@ resource "kubernetes_manifest" "agent_code_review" {
               name      = "diff-tools"
               toolNames = ["github_diff_parser", "code_chunker"]
             }
+          },
+          {
+            type = "McpServer"
+            mcpServer = {
+              apiGroup = "kagent.dev"
+              kind     = "RemoteMCPServer"
+              name     = "github"
+              toolNames = [
+                "get_pull_request",
+                "get_pull_request_files",
+                "get_pull_request_diff",
+                "create_pull_request_review",
+                "get_file_contents",
+                "list_pull_request_commits",
+              ]
+            }
           }
         ]
         systemMessage = <<-EOT
@@ -261,5 +277,5 @@ resource "kubernetes_manifest" "agent_code_review" {
     }
   }
 
-  depends_on = [helm_release.kagent, kubernetes_manifest.remotemcpserver_diff_tools]
+  depends_on = [helm_release.kagent, kubernetes_manifest.remotemcpserver_diff_tools, kubernetes_manifest.remotemcpserver_github]
 }

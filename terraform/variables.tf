@@ -40,6 +40,12 @@ variable "ghcr_token" {
   sensitive   = true
 }
 
+variable "github_token" {
+  description = "GitHub PAT with repo and pull_requests scopes for the GitHub MCP server"
+  type        = string
+  sensitive   = true
+}
+
 variable "diff_tools_image" {
   description = "Container image for the diff-tools MCP server"
   type        = string

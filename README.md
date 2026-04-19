@@ -1,6 +1,8 @@
 # homelab-infrastructure
 
 [![Terraform Apply](https://github.com/vokinneberg/infrastructure/actions/workflows/terraform-apply.yml/badge.svg)](https://github.com/vokinneberg/infrastructure/actions/workflows/terraform-apply.yml)
+[![Terraform PR](https://github.com/vokinneberg/infrastructure/actions/workflows/terraform-pr.yml/badge.svg)](https://github.com/vokinneberg/infrastructure/actions/workflows/terraform-pr.yml)
+[![Tools CI](https://github.com/vokinneberg/infrastructure/actions/workflows/tools-ci.yml/badge.svg)](https://github.com/vokinneberg/infrastructure/actions/workflows/tools-ci.yml)
 [![Build Tools](https://github.com/vokinneberg/infrastructure/actions/workflows/build-tools.yml/badge.svg)](https://github.com/vokinneberg/infrastructure/actions/workflows/build-tools.yml)
 
 Personal homelab Kubernetes cluster on DigitalOcean, managed with Terraform and powered by [kagent](https://kagent.dev) AI agents.

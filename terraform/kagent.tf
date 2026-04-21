@@ -16,6 +16,11 @@ resource "helm_release" "kagent" {
     value = "anthropic"
   }
 
+  set {
+    name  = "providers.anthropic.model"
+    value = "claude-sonnet-4-6"
+  }
+
   set_sensitive {
     name  = "providers.anthropic.apiKey"
     value = var.kagent_anthropic_api_key

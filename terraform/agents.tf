@@ -30,12 +30,9 @@ resource "kubernetes_manifest" "agent_code_review" {
               kind     = "RemoteMCPServer"
               name     = "github"
               toolNames = [
-                "get_pull_request",
-                "get_pull_request_files",
-                "get_pull_request_diff",
-                "create_pull_request_review",
+                "pull_request_read",
+                "pull_request_review_write",
                 "get_file_contents",
-                "list_pull_request_commits",
               ]
             }
           }

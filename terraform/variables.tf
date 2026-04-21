@@ -51,3 +51,9 @@ variable "diff_tools_image" {
   type        = string
   default     = "ghcr.io/vokinneberg/homelab-diff-tools:latest"
 }
+
+variable "agentgateway_api_key" {
+  description = "API key for authenticating requests to the agentgateway public endpoint"
+  type        = string
+  sensitive   = true
+}

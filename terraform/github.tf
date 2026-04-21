@@ -5,7 +5,8 @@ resource "kubernetes_secret" "github_mcp_token" {
   }
 
   data = {
-    token = var.github_token
+    token  = var.github_token
+    bearer = "Bearer ${var.github_token}"
   }
 
   depends_on = [kubernetes_namespace.kagent]
@@ -125,9 +126,19 @@ resource "kubernetes_manifest" "remotemcpserver_github" {
       namespace = kubernetes_namespace.kagent.metadata[0].name
     }
     spec = {
-      description = "GitHub API: read PRs, files, diffs and post reviews"
-      url         = "http://github-mcp:8082/mcp"
-      protocol    = "STREAMABLE_HTTP"
+      description  = "GitHub API: read PRs, files, diffs and post reviews"
+      url          = "http://github-mcp:8082/mcp"
+      protocol     = "STREAMABLE_HTTP"
+      headersFrom = [
+        {
+          name = "Authorization"
+          valueFrom = {
+            type = "Secret"
+            name = "github-mcp-token"
+            key  = "bearer"
+          }
+        }
+      ]
     }
   }
 

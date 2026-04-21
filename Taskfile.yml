@@ -1,6 +1,6 @@
 version: "3"
 
-dotenv: [".env"]
+dotenv: [ ".env" ]
 
 vars:
   TF_DIR: terraform
@@ -10,7 +10,8 @@ env:
   TF_VAR_do_token: "{{.DIGITALOCEAN_TOKEN}}"
   TF_VAR_kagent_anthropic_api_key: "{{.KAGENT_ANTHROPIC_API_KEY}}"
   TF_VAR_ghcr_token: "{{.GITHUB_TOKEN}}"
-  TF_VAR_github_token: "{{.GITHUB_TOKEN}}"
+  TF_VAR_github_token: "{{.GITHUB_MCP_TOKEN}}"
+  TF_VAR_agentgateway_api_key: "{{.AGENTGATEWAY_API_KEY}}"
 
 tasks:
   install-tools:
@@ -28,7 +29,7 @@ tasks:
 
   venv:
     desc: Create virtual environment and install all dependencies for diff-tools
-    deps: [install-tools]
+    deps: [ install-tools ]
     dir: "{{.DIFF_TOOLS_DIR}}"
     env:
       VIRTUAL_ENV: ""
@@ -42,7 +43,7 @@ tasks:
 
   lint:
     desc: Run TFLint (Terraform) and ruff (Python)
-    deps: [install-tools, venv]
+    deps: [ install-tools, venv ]
     cmds:
       - tflint --init
       - tflint --chdir={{.TF_DIR}}
@@ -53,7 +54,7 @@ tasks:
 
   test:
     desc: Run diff-tools unit tests with coverage
-    deps: [venv]
+    deps: [ venv ]
     dir: "{{.DIFF_TOOLS_DIR}}"
     env:
       VIRTUAL_ENV: ""
@@ -64,39 +65,37 @@ tasks:
 
   init:
     desc: Terraform init
-    deps: [install-tools]
+    deps: [ install-tools ]
     dir: "{{.TF_DIR}}"
     cmds:
       - terraform init
 
   plan:
     desc: Terraform plan
-    deps: [init]
+    deps: [ init ]
     dir: "{{.TF_DIR}}"
     cmds:
       - terraform plan
 
   apply:
     desc: Terraform apply
-    deps: [init]
+    deps: [ init ]
     dir: "{{.TF_DIR}}"
     cmds:
       - terraform apply
 
   destroy-cluster:
     desc: Destroy the Kubernetes cluster and all resources inside it
-    deps: [init]
+    deps: [ init ]
     dir: "{{.TF_DIR}}"
     cmds:
       - terraform destroy -target=digitalocean_kubernetes_cluster.homelab
-          -target=helm_release.kagent
-          -target=helm_release.kagent_crds
-          -target=kubernetes_namespace.kagent
-          -target=kubernetes_namespace.apps
+        -target=helm_release.kagent -target=helm_release.kagent_crds
+        -target=kubernetes_namespace.kagent -target=kubernetes_namespace.apps
 
   destroy:
     desc: Terraform destroy all resources
-    deps: [init]
+    deps: [ init ]
     dir: "{{.TF_DIR}}"
     cmds:
       - terraform destroy
@@ -106,6 +105,8 @@ tasks:
   kagent-ui:
     desc: Port-forward kagent UI to http://localhost:8080
     cmds:
-      - terraform -chdir={{.TF_DIR}} output -raw kubeconfig > /tmp/homelab.kubeconfig
+      - terraform -chdir={{.TF_DIR}} output -raw kubeconfig >
+        /tmp/homelab.kubeconfig
       - echo "kagent UI → http://localhost:8080"
-      - KUBECONFIG=/tmp/homelab.kubeconfig kubectl port-forward -n kagent svc/kagent-ui 8080:8080
+      - KUBECONFIG=/tmp/homelab.kubeconfig kubectl port-forward -n kagent
+        svc/kagent-ui 8080:8080

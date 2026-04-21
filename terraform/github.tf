@@ -126,9 +126,9 @@ resource "kubernetes_manifest" "remotemcpserver_github" {
       namespace = kubernetes_namespace.kagent.metadata[0].name
     }
     spec = {
-      description  = "GitHub API: read PRs, files, diffs and post reviews"
-      url          = "http://github-mcp:8082/mcp"
-      protocol     = "STREAMABLE_HTTP"
+      description = "GitHub API: read PRs, files, diffs and post reviews"
+      url         = "http://github-mcp:8082/mcp"
+      protocol    = "STREAMABLE_HTTP"
       headersFrom = [
         {
           name = "Authorization"

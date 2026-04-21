@@ -73,26 +73,11 @@ jobs:
         with:
           token: ${{ secrets.DIGITALOCEAN_TOKEN }}
 
-      - name: Trigger clusterlint run
-        run: doctl kubernetes cluster lint ${{ needs.apply.outputs.cluster_id }}
+      - name: Save kubeconfig
+        run: doctl kubernetes cluster kubeconfig save ${{ needs.apply.outputs.cluster_id }}
 
-      - name: Poll for results
-        run: |
-          echo "Waiting for clusterlint to complete..."
-          for i in $(seq 1 12); do
-            RAW=$(doctl kubernetes cluster lint ${{ needs.apply.outputs.cluster_id }} --output json 2>/dev/null || true)
-            RESULT=$(echo "$RAW" | jq '.' 2>/dev/null || echo '[]')
-            STATUS=$(echo "$RESULT" | jq -r '.[0].run_status // "not_started"')
-            if [ "$STATUS" = "completed" ]; then
-              echo "Clusterlint completed."
-              ERRORS=$(echo "$RESULT" | jq '[.[0].diagnostics[] | select(.severity == "error")] | length')
-              echo "Errors found: $ERRORS"
-              echo "$RESULT" | jq '.[0].diagnostics[]'
-              [ "$ERRORS" -eq 0 ]
-              exit $?
-            fi
-            echo "Status: $STATUS — waiting 10s..."
-            sleep 10
-          done
-          echo "Clusterlint timed out."
-          exit 1
+      - name: Install clusterlint
+        run: go install github.com/digitalocean/clusterlint/cmd/clusterlint@latest
+
+      - name: Run clusterlint
+        run: clusterlint run

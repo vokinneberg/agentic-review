@@ -1,6 +1,7 @@
 # homelab-infrastructure
 
 [![Terraform Apply](https://github.com/vokinneberg/infrastructure/actions/workflows/terraform-apply.yml/badge.svg)](https://github.com/vokinneberg/infrastructure/actions/workflows/terraform-apply.yml)
+[![Popeye](https://github.com/vokinneberg/infrastructure/actions/workflows/popeye.yml/badge.svg)](https://github.com/vokinneberg/infrastructure/actions/workflows/popeye.yml)
 [![Terraform PR](https://github.com/vokinneberg/infrastructure/actions/workflows/terraform-pr.yml/badge.svg)](https://github.com/vokinneberg/infrastructure/actions/workflows/terraform-pr.yml)
 [![Tools CI](https://github.com/vokinneberg/infrastructure/actions/workflows/tools-ci.yml/badge.svg)](https://github.com/vokinneberg/infrastructure/actions/workflows/tools-ci.yml)
 [![Build Tools](https://github.com/vokinneberg/infrastructure/actions/workflows/build-tools.yml/badge.svg)](https://github.com/vokinneberg/infrastructure/actions/workflows/build-tools.yml)

@@ -1,0 +1,36 @@
+name: Popeye
+
+on:
+  workflow_run:
+    workflows: ["Terraform Apply"]
+    types: [completed]
+    branches: [master]
+
+jobs:
+  popeye:
+    name: Popeye
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_TOKEN }}
+
+      - name: Save kubeconfig
+        run: doctl kubernetes cluster kubeconfig save homelab
+
+      - name: Install popeye
+        run: |
+          curl -sL https://github.com/derailed/popeye/releases/latest/download/popeye_linux_amd64.tar.gz \
+            | tar -xz -C /usr/local/bin popeye
+
+      - name: Run popeye
+        run: popeye --save --out html --output-file /tmp/popeye.html || true
+
+      - name: Upload popeye report
+        uses: actions/upload-artifact@v4
+        with:
+          name: popeye-report
+          path: /tmp/popeye.html

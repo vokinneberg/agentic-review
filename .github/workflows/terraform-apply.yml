@@ -2,7 +2,7 @@ name: Terraform Apply
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
     paths:
       - "terraform/**"
       - ".github/workflows/terraform-*.yml"
@@ -62,30 +62,3 @@ jobs:
           git push
         working-directory: ${{ github.workspace }}
 
-  popeye:
-    name: Popeye
-    runs-on: ubuntu-latest
-    needs: apply
-
-    steps:
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DIGITALOCEAN_TOKEN }}
-
-      - name: Save kubeconfig
-        run: doctl kubernetes cluster kubeconfig save ${{ needs.apply.outputs.cluster_id }}
-
-      - name: Install popeye
-        run: |
-          curl -sL https://github.com/derailed/popeye/releases/latest/download/popeye_linux_amd64.tar.gz \
-            | tar -xz -C /usr/local/bin popeye
-
-      - name: Run popeye
-        run: popeye --save --out html --output-file /tmp/popeye.html || true
-
-      - name: Upload popeye report
-        uses: actions/upload-artifact@v4
-        with:
-          name: popeye-report
-          path: /tmp/popeye.html

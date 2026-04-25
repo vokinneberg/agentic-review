@@ -113,10 +113,17 @@ resource "kubernetes_deployment" "agentgateway" {
   ]
 }
 
+resource "digitalocean_reserved_ip" "agentgateway" {
+  region = var.region
+}
+
 resource "kubernetes_service" "agentgateway" {
   metadata {
     name      = "agentgateway"
     namespace = kubernetes_namespace.kagent.metadata[0].name
+    annotations = {
+      "service.beta.kubernetes.io/do-loadbalancer-reserved-ip" = digitalocean_reserved_ip.agentgateway.ip_address
+    }
   }
 
   spec {

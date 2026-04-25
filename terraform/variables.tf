@@ -19,7 +19,7 @@ variable "cluster_name" {
 variable "node_size" {
   description = "DigitalOcean Droplet size for worker nodes"
   type        = string
-  default     = "s-2vcpu-4gb"
+  default     = "s-4vcpu-8gb"
 }
 
 variable "node_count" {

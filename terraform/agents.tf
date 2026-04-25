@@ -1,7 +1,5 @@
-resource "kubernetes_manifest" "agent_code_review" {
-  computed_fields = ["spec.declarative.modelConfig", "spec.declarative.systemMessage", "spec.declarative.tools"]
-
-  manifest = {
+resource "kubectl_manifest" "agent_code_review" {
+  yaml_body = yamlencode({
     apiVersion = "kagent.dev/v1alpha2"
     kind       = "Agent"
     metadata = {
@@ -272,7 +270,7 @@ resource "kubernetes_manifest" "agent_code_review" {
       EOT
       }
     }
-  }
+  })
 
-  depends_on = [helm_release.kagent, kubernetes_manifest.remotemcpserver_diff_tools, kubernetes_manifest.remotemcpserver_github]
+  depends_on = [helm_release.kagent, kubectl_manifest.remotemcpserver_diff_tools, kubectl_manifest.remotemcpserver_github]
 }

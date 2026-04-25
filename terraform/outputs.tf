@@ -15,7 +15,12 @@ output "cluster_id" {
   value       = digitalocean_kubernetes_cluster.homelab.id
 }
 
+output "agentgateway_ip" {
+  description = "Reserved IP assigned to the agentgateway LoadBalancer"
+  value       = digitalocean_reserved_ip.agentgateway.ip_address
+}
+
 output "agentgateway_endpoint" {
-  description = "Public IP of the agentgateway LoadBalancer (DigitalOcean cloud LB)"
-  value       = kubernetes_service.agentgateway.status[0].load_balancer[0].ingress[0].ip
+  description = "Public endpoint of the agentgateway"
+  value       = "http://${digitalocean_reserved_ip.agentgateway.ip_address}"
 }

@@ -21,10 +21,8 @@ resource "kubernetes_secret" "ghcr_pull_secret" {
   depends_on = [kubernetes_namespace.kagent]
 }
 
-resource "kubernetes_manifest" "mcpserver_diff_tools" {
-  computed_fields = ["spec"]
-
-  manifest = {
+resource "kubectl_manifest" "mcpserver_diff_tools" {
+  yaml_body = yamlencode({
     apiVersion = "kagent.dev/v1alpha1"
     kind       = "MCPServer"
     metadata = {
@@ -54,15 +52,13 @@ resource "kubernetes_manifest" "mcpserver_diff_tools" {
         targetPort = 8000
       }
     }
-  }
+  })
 
-  depends_on = [kubernetes_namespace.kagent, kubernetes_secret.ghcr_pull_secret]
+  depends_on = [helm_release.kagent_crds, kubernetes_namespace.kagent, kubernetes_secret.ghcr_pull_secret]
 }
 
-resource "kubernetes_manifest" "remotemcpserver_diff_tools" {
-  computed_fields = ["spec"]
-
-  manifest = {
+resource "kubectl_manifest" "remotemcpserver_diff_tools" {
+  yaml_body = yamlencode({
     apiVersion = "kagent.dev/v1alpha2"
     kind       = "RemoteMCPServer"
     metadata = {
@@ -74,7 +70,7 @@ resource "kubernetes_manifest" "remotemcpserver_diff_tools" {
       url         = "http://diff-tools:8000/mcp"
       protocol    = "STREAMABLE_HTTP"
     }
-  }
+  })
 
-  depends_on = [kubernetes_manifest.mcpserver_diff_tools]
+  depends_on = [kubectl_manifest.mcpserver_diff_tools]
 }

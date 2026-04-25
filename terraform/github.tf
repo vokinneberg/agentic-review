@@ -115,10 +115,8 @@ resource "kubernetes_service" "github_mcp" {
   }
 }
 
-resource "kubernetes_manifest" "remotemcpserver_github" {
-  computed_fields = ["spec"]
-
-  manifest = {
+resource "kubectl_manifest" "remotemcpserver_github" {
+  yaml_body = yamlencode({
     apiVersion = "kagent.dev/v1alpha2"
     kind       = "RemoteMCPServer"
     metadata = {
@@ -140,7 +138,7 @@ resource "kubernetes_manifest" "remotemcpserver_github" {
         }
       ]
     }
-  }
+  })
 
-  depends_on = [kubernetes_service.github_mcp]
+  depends_on = [helm_release.kagent_crds, kubernetes_service.github_mcp]
 }

@@ -61,4 +61,3 @@ jobs:
           git diff --staged --quiet || git commit -m "chore: update terraform state [skip ci]"
           git push
         working-directory: ${{ github.workspace }}
-

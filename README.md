@@ -138,6 +138,45 @@ uv run --directory tools/diff-tools python server.py
 
 ---
 
+## 🔌 GitLab CI Component
+
+The `code-review-agent` is published as a reusable **GitLab CI Component** so any GitLab project can trigger an AI review on every merge request with two lines of config.
+
+### Usage
+
+```yaml
+# .gitlab-ci.yml (in the target project)
+include:
+  - component: gitlab.com/vokinneberg/agentinc-review/code-review@main
+
+stages:
+  - review
+```
+
+### Authentication
+
+Add `AGENT_AUTH_TOKEN` as a **masked** CI/CD variable in the target project under **Settings → CI/CD → Variables**. The component reads the token from that variable by default.
+
+### Inputs
+
+| Input | Default | Description |
+|---|---|---|
+| `agent_url` | `http://161.35.252.93/` | A2A endpoint of the code-review-agent |
+| `stage` | `review` | Pipeline stage to run in |
+| `auth_token_var` | `AGENT_AUTH_TOKEN` | Name of the CI/CD variable holding the Bearer token |
+| `review_prompt` | *(auto)* | Custom prompt; defaults to `Review MR !N in org/project` |
+
+### Custom prompt example
+
+```yaml
+include:
+  - component: gitlab.com/vokinneberg/agentinc-review/code-review@main
+    inputs:
+      review_prompt: "Review MR !$CI_MERGE_REQUEST_IID in $CI_PROJECT_PATH focusing on security issues"
+```
+
+---
+
 ## 🤖 Agents
 
 ### code-review-agent

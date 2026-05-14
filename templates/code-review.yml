@@ -1,0 +1,82 @@
+spec:
+  inputs:
+    stage:
+      description: "Pipeline stage to run the review in."
+      default: review
+    agent_url:
+      description: "Base URL of the kagent code-review-agent (A2A endpoint)."
+      default: "http://161.35.252.93/"
+    auth_token_var:
+      description: >
+        Name of the CI/CD variable holding the agent Bearer token.
+        Set that variable as masked/protected in your project's CI/CD settings.
+      default: AGENT_AUTH_TOKEN
+    review_prompt:
+      description: >
+        Prompt sent to the agent. Defaults to reviewing the current MR.
+      default: ""
+
+---
+
+agentic-code-review:
+  stage: $[[ inputs.stage ]]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  variables:
+    _AGENT_URL: $[[ inputs.agent_url ]]
+    _AUTH_TOKEN_VAR: $[[ inputs.auth_token_var ]]
+    _REVIEW_PROMPT: $[[ inputs.review_prompt ]]
+  script:
+    - |
+      # Resolve auth token from the named CI/CD variable
+      AUTH_TOKEN="${!_AUTH_TOKEN_VAR}"
+      if [ -z "$AUTH_TOKEN" ]; then
+        echo "ERROR: CI/CD variable '$_AUTH_TOKEN_VAR' is not set or empty." >&2
+        exit 1
+      fi
+
+      # Default prompt targets the current MR
+      PROMPT="${_REVIEW_PROMPT:-Review MR !${CI_MERGE_REQUEST_IID} in ${CI_PROJECT_PATH}}"
+
+      REQUEST_ID="mr-${CI_MERGE_REQUEST_IID}-${CI_PIPELINE_ID}"
+      MESSAGE_ID="msg-${REQUEST_ID}"
+
+      echo "Requesting code review from agent at ${_AGENT_URL} ..."
+
+      # Build JSON payload via Python to avoid shell-escaping issues in the prompt text
+      PAYLOAD=$(python3 - "$REQUEST_ID" "$MESSAGE_ID" "$PROMPT" <<'PYEOF'
+import json, sys
+_, req_id, msg_id, prompt = sys.argv
+print(json.dumps({
+    "jsonrpc": "2.0",
+    "id": req_id,
+    "method": "message/send",
+    "params": {
+        "message": {
+            "messageId": msg_id,
+            "role": "user",
+            "parts": [{"type": "text", "text": prompt}]
+        }
+    }
+}))
+PYEOF
+)
+
+      RESPONSE=$(curl -sf -X POST \
+        -H "Content-Type: application/json" \
+        -H "Authorization: Bearer ${AUTH_TOKEN}" \
+        -d "$PAYLOAD" \
+        "${_AGENT_URL}")
+
+      echo "$RESPONSE" | python3 - <<'PYEOF'
+import sys, json
+d = json.load(sys.stdin)
+status = d.get("result", {}).get("status", {})
+state  = status.get("state", "unknown")
+parts  = status.get("message", {}).get("parts", [])
+text   = parts[0].get("text", "") if parts else ""
+print(f"Agent state: {state}\n")
+print(text[:5000])
+if len(text) > 5000:
+    print(f"\n[... {len(text) - 5000} chars truncated ...]")
+PYEOF
